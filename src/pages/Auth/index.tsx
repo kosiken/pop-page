@@ -62,7 +62,7 @@ const Auth = () => {
     let user: User;
     const q = query(collection(LionAppDb, "app-users"), where("email", "==", email));
     const querySnapshot = await getDocs(q);
-    if(querySnapshot.docs.length === 0) {
+    if(querySnapshot.empty) {
       let userData = {
         name: name || "Empty",
         email,
@@ -78,7 +78,7 @@ const Auth = () => {
      
 
       console.log("Document written with ID: ", docRef.id);
-      user = new User({...userData, id: docRef.id})
+      user = new User({...userData, id: docRef.id, isCandidate: false, isAdmin: false, isInstantUser: false})
 
     } catch (e: any) {
       console.error("Error adding document: ", e);

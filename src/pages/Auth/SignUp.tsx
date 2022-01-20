@@ -63,7 +63,7 @@ const SignUp: React.FC<{
         try {
             let user = await createUserWithEmailAndPassword(authentication, data.email, data.password)
             console.log(user);
-            onSuccess(user.user.email || data.email, data.name);
+            onSuccess(user.user.email || data.email, (data.name as string).toLowerCase());
 
         } catch (err: any) {
             let e = err as AuthError;
