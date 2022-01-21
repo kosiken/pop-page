@@ -69,7 +69,7 @@ const Auth = () => {
         createdAt: Date.now(),
         updatedAt:  Date.now(),
         profile: "",
-        votes: 0
+        votes: 0, isCandidate: false, isAdmin: false, isInstantUser: false
       }
       try {  const docRef = await addDoc(collection(LionAppDb, "app-users"), {
         ...userData
@@ -78,7 +78,7 @@ const Auth = () => {
      
 
       console.log("Document written with ID: ", docRef.id);
-      user = new User({...userData, id: docRef.id, isCandidate: false, isAdmin: false, isInstantUser: false})
+      user = new User({...userData, id: docRef.id})
 
     } catch (e: any) {
       console.error("Error adding document: ", e);
@@ -93,7 +93,7 @@ const Auth = () => {
       user = new User(data);
    
     }
-    dispatch<AuthAction>({ type: "login", user, token: user.id, shouldSet: false })
+    dispatch<AuthAction>({ type: "login", user, token: user.id, shouldSet: true })
     dispatch<HomeAction>({ type: 'show-error', errorMessage: "Signed In"});
   }
 

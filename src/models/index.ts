@@ -96,6 +96,25 @@ export class User implements IUser {
     }
    
 
+    getDetails (): any {
+        return {
+            name: this.name,
+            stateCode: this.stateCode,
+            profile: this.profile,
+        
+            email: this.email,
+            updatedAt: this.updatedAt,
+   
+            votes: this.votes,
+           
+            createdAt: this.createdAt,
+            isCandidate: this.isCandidate,
+            isAdmin: this.isAdmin,
+            votingCategory: this.votingCategory,
+            isInstantUser: this.isInstantUser
+        }
+    }
+
 }
 
 export const DefaultUser = new User({

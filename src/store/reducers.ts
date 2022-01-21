@@ -68,7 +68,7 @@ export function authReducer(
 
         localStorage.setItem("token", returnObj.token!);
         // localStorage.setItem("user", JSON.stringify(returnObj.user));
-        window.location.pathname = "/";
+        // window.location.pathname = "/";
         return returnObj;
       }
      

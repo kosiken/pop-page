@@ -8,32 +8,26 @@ import ListItemText from "@mui/material/ListItemText";
 import { useDispatch } from "react-redux";
 import Badge from '@mui/material/Badge';
 import FaceIcon from '@mui/icons-material/Person';
-import DialogTitle from '@mui/material/DialogTitle';
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
+
 import { collection, query, getDocsFromServer as getDocs, } from "firebase/firestore";
-import { VotingCategory,  DefaultUser } from '../../models';
+import { VotingCategory } from '../../models';
 import Header from '../../components/Header';
-import Spacer from '../../components/Spacer';
+
 import { reduceString, titleCase } from '../../helpers';
-import AddCategoryForm from '../../components/AddCategoryForm';
 import { HomeAction } from '../../store/reducers';
 
 import { LionAppDb } from '../../firebaseObjects';
 import LoadingPageIndicator from '../../components/LoadingPageIndicator';
+import AppLink from '../../components/AppLink';
 
 
 
-const Home = () => {
+const VotingHome = () => {
+
     const tableName = "app-voting-category";
     const [categories, setCategories] = useState<VotingCategory[]>([]);
-    const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = useState(true);
-    const [currentCategory, setCurrentCategory] = useState<VotingCategory | undefined>();
-    const [index, setIndex] = useState(-1);
-
+    // const user = useSelector((state: AppState) => state.auth.user);
 
     const dispatch = useDispatch();
 
@@ -70,53 +64,25 @@ const Home = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-      if(!!currentCategory)  setOpen(!!currentCategory);
-    }, [currentCategory])
-
-    useEffect(()=> {
-        if(!open) {
-            setIndex(-1);
-            setCurrentCategory(undefined)
-        }
-    }, [open])
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-
-
-    const user = DefaultUser;
 
     const messageUser = (message: string) => {
         dispatch<HomeAction>({ type: 'show-error', errorMessage: message });
 
     }
-
-
     if (loading) {
         return <LoadingPageIndicator />
     }
-    return (<Box>
-        <Header   title="Admin" />
-        <Container>
-            <Spacer />
-            <List>
+
+    return (
+        <Box>
+            <Header title="Home" />
+            <Container>
+                <List>
                 {categories.map((c, i) => {
                     const selected = !!c.winner;
                     return (
-                        <ListItem key={'voting-category-' + i} button onClick={() => {
-                            setIndex(i);
-                            setCurrentCategory(c);
-                            
-                        }} >
+                        <AppLink doNotUseButton key={'voting-category-' + i} to={"/voting-category/" + c.id}  >
+                        <ListItem  button >
                             <ListItemIcon>
                                 <FaceIcon />
                             </ListItemIcon>
@@ -135,53 +101,13 @@ const Home = () => {
                             }
 
                         </ListItem>
+                        </AppLink>
                     )
                 })}
-            </List>
-
-            <Dialog open={open} onClose={handleClose} >
-                <DialogTitle>Create Category</DialogTitle>
-                <DialogContent>
-                    <AddCategoryForm user={user} onCreate={(s, r, v, i) => {
-                        console.log(s, r, v)
-                        if (s) {
-                            setCategories([...categories, v]);
-                        }
-                        else {
-                            let c = [...categories];
-                            c[i!] = v;
-                            setCategories(c);
-                        }
-
-                        messageUser(r);
-                    }}
-                        db={LionAppDb}
-                        onError={(reason) => {
-
-                            messageUser(reason)
-                        }}
-                        index={index}
-                        votingCategory={currentCategory}
-                    />
-                </DialogContent>
-            </Dialog>
-            <Box sx={{
-                position: 'fixed', width: 100, height: 100,
-                bottom: -35,
-                right: 0,
-                zIndex: 9999
-            }}>
-                <Fab
-                    aria-label="save"
-                    color="primary"
-                    onClick={handleClickOpen}
-                >
-                    <AddIcon />
-                </Fab>
-            </Box>
-        </Container>
-    </Box>
+                </List>
+            </Container>
+        </Box>
     );
 };
 
-export default Home;
+export default VotingHome;

@@ -4,7 +4,10 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { useParams } from "react-router";
 import List from '@mui/material/List';
-import { blue, red } from '@mui/material/colors';
+import { blue, green, red } from '@mui/material/colors';
+import IconButton from '@mui/material/IconButton';
+// import VisibilityIcon from '@mui/icons-material/Visibility';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -22,13 +25,13 @@ import AddIcon from '@mui/icons-material/Add';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
-import { collection, query, getDocsFromServer as getDocs, getDoc, addDoc, setDoc, doc, where, FieldValue } from "firebase/firestore";
+import { collection, query, getDocsFromServer as getDocs, getDoc, addDoc, setDoc, doc, where } from "firebase/firestore";
 import Fab from '@mui/material/Fab';
 import * as yup from "yup";
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import LinearProgress from "@mui/material/LinearProgress";
-import { VotingCategory, DefaultUser, Vote, NominationEntry, CandidateEntry, User, IUser, namedType } from '../../models';
+import { VotingCategory, Vote, NominationEntry, CandidateEntry, User, IUser } from '../../models';
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import { LionAppDb } from '../../firebaseObjects';
@@ -140,25 +143,118 @@ function a11yProps(index: number) {
 
 const VotersList: React.FC<{
     voters: Vote[]
-}> = () => {
+}> = ({voters}) => {
 
     return (<Box style={{
         position: 'relative'
     }}>
-
+        <List>
+            {
+                voters.map((v, i) => (
+                    <ListItem>
+                        <ListItemText primary={titleCase(v.voter.name)} secondary={getDate(v.createdAt)} />
+                    </ListItem>
+                ))
+            }
+        </List>
 
 
     </Box>);
 }
 
+const NomineePanel: React.FC<{
+
+    onLoading: (loading: boolean) => void;
+    loading: boolean;
+    nominee: NominationEntry;
+    onCreate: (entry: CandidateEntry) => void;
+}> = ({ onLoading, loading, nominee, onCreate }) => {
+    const [isApproved, setIsApproved] = useState(nominee.isApproved);
+
+    const createCandidate = async () => {
+        if (loading) return;
+        onLoading(true);
+        const q = query(collection(LionAppDb, tableName2), where("categoryId", "==", nominee.categoryId),
+            where("candidateId", "==", nominee.userId));
+
+        const snapshot = await getDocs(q);
+
+        const date = Date.now();
+
+        if (snapshot.empty) {
+            let toCreate = {
+                candidate: nominee.user,
+                category: nominee.category,
+                categoryId: nominee.categoryId,
+                candidateId: nominee.userId,
+                votes: 0,
+                createdAt: date,
+                updatedAt: date
+
+            }
+
+            const d = await addDoc(collection(LionAppDb, tableName2), toCreate);
+
+            const candidateRef = collection(LionAppDb, tableName3);
+            await setDoc(doc(candidateRef, nominee.id), {
+                ...nominee,
+                isApproved: true,
+            })
+
+
+            setIsApproved(true);
+            onCreate({ ...toCreate, id: d.id });
+
+
+        }
+        onLoading(false);
+
+    }
+    return (<ListItem >
+        <ListItemAvatar>
+            <Avatar />
+        </ListItemAvatar>
+        <ListItemText primary={titleCase(nominee.user.name)} />
+
+        <AppLink style={{
+            marginRight: '10px'
+        }}
+            to={"/candidate/" + nominee.userId} doNotUseButton>
+
+            <IconButton style={{ marginRight: '10px' }}>
+                <VisibilityIcon />
+            </IconButton>
+
+        </AppLink>
+
+
+        <IconButton disabled={isApproved || loading} onClick={createCandidate} >
+            <ThumbUpIcon />
+        </IconButton>
+
+    </ListItem>
+    )
+}
+
 const NomineesList: React.FC<{
     nominees: NominationEntry[]
-}> = ({ nominees }) => {
+    onCreate: (c: CandidateEntry) => void;
+}> = ({ nominees, onCreate }) => {
+
+    const [loading, setLoading] = useState(false);
+
 
     return (<Box style={{
         position: 'relative'
     }}>
-
+        {loading && <LinearProgress />}
+        <List>
+            {
+                // key={'nominee-' + i}
+                nominees.map((c, i) => <NomineePanel key={'nominee-' + i} nominee={c} onLoading={setLoading} onCreate={onCreate} loading={loading} />
+                )
+            }
+        </List>
     </Box>);
 }
 
@@ -321,6 +417,15 @@ const CandidateList: React.FC<{
             <Box sx={{ minWidth: { sm: 450, xs: 300 } }}>
                 <List sx={{ pt: 0 }}>
                     <AppLink to={"/view-user/" + candidateId} doNotUseButton>
+                        <ListItem>
+                            <ListItemAvatar> <Avatar sx={{ bgcolor: green[100], color: green[600] }}>
+                                <ThumbUpIcon />
+                            </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primary={`Votes -> ${user?.votes}`} />
+
+                        </ListItem>
+
                         <ListItem button >
                             <ListItemAvatar>
                                 <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
@@ -330,7 +435,9 @@ const CandidateList: React.FC<{
                             <ListItemText primary={"View User"} />
                         </ListItem>
                     </AppLink>
-                    <ListItem button >
+                    <ListItem button onClick={() => {
+                        window.alert("Call or send a message on whatsapp to 08146392214 to delete candidate")
+                    }}>
                         <ListItemAvatar>
                             <Avatar sx={{ bgcolor: red[100], color: red[600] }}>
                                 <DeleteIcon />
@@ -364,7 +471,7 @@ const CandidateList: React.FC<{
                             <ListItemAvatar>
                                 <Avatar />
                             </ListItemAvatar>
-                            <ListItemText primary={titleCase(c.candidate.name)} secondary={getDate(c.createdAt)} />
+                            <ListItemText primary={titleCase(c.candidate.name)} secondary={getDate(c.updatedAt)} />
                         </ListItem>
                     )
                 })
@@ -395,8 +502,7 @@ const CandidateList: React.FC<{
 }
 
 const VotingCategoryPage = () => {
-    const user = DefaultUser;
-
+   
 
     const [value, setValue] = React.useState(0);
     // const [title, setTitle] = useState("Admin");
@@ -500,7 +606,7 @@ const VotingCategoryPage = () => {
     }
 
     return (<Box>
-        <Header user={user} title={"View Category"} />
+        <Header title={"View Category"} />
         <Container>
             <Spacer />
             <Typography variant='h5' component={'h5'}>
@@ -534,7 +640,7 @@ const VotingCategoryPage = () => {
                 </Tabs>
             </Box>
         </Box>
-
+        <Container>
         <TabPanel value={value} index={0}>
             <CandidateList onCreate={(s, r, c, i) => {
                 console.log(s, r, c, i);
@@ -547,13 +653,16 @@ const VotingCategoryPage = () => {
 
 
         <TabPanel value={value} index={1}>
-            <NomineesList nominees={nominees} />
+            <NomineesList nominees={nominees} onCreate={(c) => {
+                setCandidates([...candidates, c]);
+                messageUser("Candidate " + c.candidate.name + " created")
+            }} />
         </TabPanel>
 
         <TabPanel value={value} index={2}>
             <VotersList voters={voters} />
         </TabPanel>
-
+        </Container>
     </Box>);
 };
 

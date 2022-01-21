@@ -11,21 +11,27 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import { User } from '../models';
+// import { User } from '../models';
 import AppLink from './AppLink';
+import {AppState} from '../store';
+import { useSelector } from 'react-redux';
+
+
 
 const pages = [{name: 'Categories', path: '/'},{name: 'Candidates', path: '/candidates'},{name: 'Nominations', path: '/nominations'},];
-const settings = [{name:'Home', path: '/app/'},{name: 'Profile', path: '/app/my-profile'}, {name: 'Logout', path: '/log-out'}];
+const settings = [{name:'Home', path: '/'},{name: 'Profile', path: '/my-profile'}, {name: 'Logout', path: '/log-out'}];
 const Header: React.FC<{
     title: string;
-    user: User;
+
 }> = ({
-    user,
+  
     title
 }) => {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   
+    const user = useSelector((state: AppState) => state.auth.user);
+
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
       setAnchorElNav(event.currentTarget);
     };
@@ -117,7 +123,7 @@ const Header: React.FC<{
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt={user.name} />
+                  <Avatar alt={user!.name} />
                 </IconButton>
               </Tooltip>
               <Menu
