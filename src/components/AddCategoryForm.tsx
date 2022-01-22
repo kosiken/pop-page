@@ -106,7 +106,7 @@ const AddCategoryForm: React.FC<{
                     numOfCandidates: 0,
                     numOfNominationEntries: 0,
                     isRestricted,
-                    votingIsActive: false,
+                    votingIsActive: true,
                     nominationsIsActive: true
 
                 }
@@ -139,6 +139,7 @@ const AddCategoryForm: React.FC<{
                         categoryDescription: data.categoryDescription,
                         categoryShortText: data.categoryShortText,
                         updatedAt: Date.now(),
+
 
 
                     }
