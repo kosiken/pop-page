@@ -344,7 +344,7 @@ const VotingCategoryUserPage = () => {
     const onNominate = async () => {
         if (!user) return;
         if (!currentCategory) return;
-        if (currentCategory.isRestricted) {
+        if (currentCategory.isRestricted && !user.paid) {
             return window.alert("You need to contact 08146392214 by call or whatsapp to be a candidate for this position");
         }
 
