@@ -49,6 +49,7 @@ const Auth = () => {
   const dispatch = useDispatch();
   const [value, setValue] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
+  const [loggingInWithGoogle, setLoggingInWithGoogle] = React.useState(false);
   const authentication = getAuth(LionApp);
   authentication.useDeviceLanguage();
   const provider = new GoogleAuthProvider();
@@ -108,6 +109,7 @@ const Auth = () => {
 
   const onLoginWithGoogle = async () => {
       try {
+        setLoggingInWithGoogle(true);
         const result = await signInWithPopup(authentication, provider);
         
           // This gives you a Google Access Token. You can use it to access the Google API.
@@ -125,6 +127,7 @@ const Auth = () => {
 
        console.log(error);
        dispatch<HomeAction>({ type: 'show-error', errorMessage: "Couldn't complete sign in"});
+       setLoggingInWithGoogle(false);
       }
   }
 
@@ -141,7 +144,7 @@ const Auth = () => {
         width: "90%",
         maxWidth: 400
       }}>
-        {loading && <LinearProgress />}
+        {(loading || loggingInWithGoogle) && <LinearProgress />}
         <Box sx={{
           borderBottom: 1, borderColor: 'divider', display: "flex",
           pt: 1,
@@ -158,11 +161,11 @@ const Auth = () => {
         </Box >
 
         <TabPanel value={value} index={0}>
-          <Login onLoading={setLoading} onSuccess={onSuccess}  />
+          <Login onLoading={setLoading} onSuccess={onSuccess} loading={(loading || loggingInWithGoogle)}  />
 
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <SignUp onLoading={setLoading} onSuccess={onSuccess} />
+          <SignUp onLoading={setLoading} onSuccess={onSuccess} loading={(loading || loggingInWithGoogle)} />
         </TabPanel>
         <Button sx={{backgroundColor:"#d93025"}} variant="contained"  onClick={(e) => {
                         e.preventDefault();

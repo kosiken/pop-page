@@ -3,6 +3,16 @@ interface Model {
     id: string;
     updatedAt: number;
     createdAt: number;
+}   
+
+export interface IEntry {
+    name: string;
+    required: boolean;
+    multiline: boolean;
+    type: "tel" | "email" | "text";
+    placeholder: string;
+    title: string;
+    defaultValue: string;
 }
 
 export interface namedType {
@@ -18,6 +28,7 @@ export interface VotingCategory extends Model {
     categoryShortText?: string;
     categoryDescription: string;
     nominationsIsActive: boolean;
+    isRestricted: boolean;
     
     votingIsActive: boolean;
     [x: string]: any;
@@ -42,6 +53,7 @@ export interface IUser extends Model {
     isAdmin: boolean;
     votingCategory?:  namedType;
     isInstantUser: boolean;
+    phoneNumber?: string;
 
 }
 
@@ -78,7 +90,7 @@ export class User implements IUser {
     isAdmin: boolean;
     votingCategory?: namedType | undefined;
     isInstantUser: boolean;
-
+    phoneNumber?: string | undefined;
     constructor(data: IUser) {
         this.name = data.name;
         this.email = data.email;
@@ -92,7 +104,7 @@ export class User implements IUser {
         this.votingCategory = data.votingCategory;
         this.stateCode  = data.stateCode;
         this.isInstantUser = data.isInstantUser
-
+        this.phoneNumber = data.phoneNumber;
     }
    
 
@@ -111,7 +123,8 @@ export class User implements IUser {
             isCandidate: this.isCandidate,
             isAdmin: this.isAdmin,
             votingCategory: this.votingCategory,
-            isInstantUser: this.isInstantUser
+            isInstantUser: this.isInstantUser,
+            phoneNumber: this.phoneNumber
         }
     }
 

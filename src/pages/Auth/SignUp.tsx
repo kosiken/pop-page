@@ -28,7 +28,7 @@ import { LionApp } from '../../firebaseObjects';
 const schema = yup
     .object({
         email: yup.string().email().required(),
-        password: yup.string().min(4).required(),
+        password: yup.string().min(6).required(),
         name: yup.string().min(3).required(),
 
     })
@@ -37,7 +37,8 @@ const schema = yup
 const SignUp: React.FC<{
     onLoading: (loading: boolean) => void;
     onSuccess: (email: string, name?: string) => Promise<void>;
-}> = ({ onLoading, onSuccess }) => {
+    loading: boolean;
+}> = ({ onLoading, onSuccess, loading }) => {
 
 
     const [errrorMessage, setErrorMessage] = React.useState("");
@@ -63,7 +64,7 @@ const SignUp: React.FC<{
         try {
             let user = await createUserWithEmailAndPassword(authentication, data.email, data.password)
             console.log(user);
-            onSuccess(user.user.email || data.email, (data.name as string).toLowerCase());
+            onSuccess(user.user.email?.toLocaleLowerCase()  || data.email.toLocaleLowerCase() , (data.name as string).toLowerCase());
 
         } catch (err: any) {
             let e = err as AuthError;
@@ -162,7 +163,7 @@ const SignUp: React.FC<{
                 <div style={{
                     textAlign: 'center'
                 }}>
-                    <Button type="submit" variant="contained">Continue</Button>
+                    <Button disabled={loading} type="submit" variant="contained">Continue</Button>
        
             
                 </div>

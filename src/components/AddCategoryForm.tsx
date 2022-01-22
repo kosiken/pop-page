@@ -4,6 +4,10 @@ import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import LinearProgress from "@mui/material/LinearProgress";
 import Box from '@mui/material/Box';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Typography from '@mui/material/Typography';
+
 import { collection, query, where, getDocsFromServer as getDocs, addDoc, setDoc, doc } from "firebase/firestore";
 // import clone from 'lodash/clone'
 import Button from '@mui/material/Button';
@@ -22,7 +26,7 @@ import AppLink from './AppLink';
 
 const schema = yup
     .object({
-        categoryDescription: yup.string().required().min(4).max(30),
+        categoryDescription: yup.string().required().min(4).max(250),
         categoryShortText: yup.string().min(4),
         name: yup.string().min(3).required(),
 
@@ -72,6 +76,7 @@ const AddCategoryForm: React.FC<{
 }) => {
         const tableName = "app-voting-category";
         const [loading, setLoading] = React.useState(false);
+        const [isRestricted, setIsRestricted] = React.useState(votingCategory?.isRestricted || false)
 
         const {
             register,
@@ -89,7 +94,7 @@ const AddCategoryForm: React.FC<{
             try {
                 let categoryCreate = {
 
-                    name: data.name.toLowerCase(),
+                    name: data.name.trim().toLowerCase(),
                     categoryDescription: data.categoryDescription,
                     categoryShortText: data.categoryShortText,
                     createdAt: Date.now(),
@@ -100,7 +105,7 @@ const AddCategoryForm: React.FC<{
                     },
                     numOfCandidates: 0,
                     numOfNominationEntries: 0,
-
+                    isRestricted,
                     votingIsActive: false,
                     nominationsIsActive: true
 
@@ -129,6 +134,7 @@ const AddCategoryForm: React.FC<{
                     let categoryCreate: any = {
 
                         ...currentCategory,
+                        isRestricted,
                         name: data.name.toLowerCase(),
                         categoryDescription: data.categoryDescription,
                         categoryShortText: data.categoryShortText,
@@ -183,6 +189,16 @@ const AddCategoryForm: React.FC<{
                             />
                         </FormControl>
                     ))}
+
+                    <Spacer />
+                    <Typography variant="body2" gutterBottom>                        Tick this box to indicate if this category is not open to general application.
+                         For expample if you need to pay to be a candidate
+                    </Typography>
+                    <FormControlLabel control={<Checkbox onChange={(e, checked) => {
+                        setIsRestricted(checked)
+                    }} checked={isRestricted} />} label="Nomination is restricted" />
+
+
 
                     <Spacer />
                     <div style={{

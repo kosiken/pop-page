@@ -21,20 +21,24 @@ import { HomeAction} from '../store/reducers';
 
 // LionApp
 
+
+
 import Spacer from '../components/Spacer';
 import {  LionAppDb } from '../firebaseObjects';
 import { AppState } from '../store';
 import Header from '../components/Header';
+import { IEntry } from '../models';
 // import api from '../../api'
 
-const entries = [
+const entries: IEntry[] = [
     {
         name: "name",
         required: true,
         multiline: false,
         placeholder: "Your Name",
         title: "Name *",
-        defaultValue: ""
+        defaultValue: "",
+        type: "text"
     },
 
     {
@@ -43,8 +47,8 @@ const entries = [
         required: false,
         multiline: true,
         placeholder: "Some info about you",
-        defaultValue: "No Profile"
-
+        defaultValue: "No Profile",
+        type: "text"
     },
     {
         name: "stateCode",
@@ -52,10 +56,19 @@ const entries = [
         required: false,
         multiline: false,
         placeholder: "Your state code",
-        defaultValue: "KD/21A/"
+        defaultValue: "KD/21A/",
+        type: "text"
 
     },
-
+    {
+        name: "phoneNumber",
+        title: "Phone Number",
+        required: true,
+        multiline: false,
+        placeholder: "081234567890",
+        defaultValue: "",
+        type: "tel"
+    }
 ]
 
 
@@ -64,6 +77,7 @@ const schema = yup
         profile: yup.string(),
         stateCode: yup.string(),
         name: yup.string().min(3).required(),
+        phoneNumber: yup.string().min(10).max(14)
 
     })
     .required();
@@ -81,12 +95,16 @@ const Profile: React.FC<{
         formState: { errors },
     } = useForm({ resolver: yupResolver(schema) });
 
- 
+    const messageUser = (message: string) => {
+        dispatch<HomeAction>({ type: 'show-error', errorMessage: message });
+
+    }
     
     const updateUser: SubmitHandler<FieldValues | {
         name: string;
         stateCode: string;
         profile: string;
+        phoneNumber: string;
     }> = async (data) => {
         setErrorMessage("");
         setLoading(true);
@@ -101,6 +119,9 @@ const Profile: React.FC<{
             if(data.stateCode) {
                 user!.stateCode = data.stateCode;
             }
+            if(data.phoneNumber) {
+                user!.phoneNumber = data.phoneNumber
+            }
             user.updatedAt = Date.now();
 
            console.log(user);
@@ -114,9 +135,11 @@ const Profile: React.FC<{
         //            delete details[key];
         //        }
         //    }
+        details.updatedAt = Date.now();
+        details.createdAt = user.createdAt;
            await setDoc(doc(usersRef, user!.id), details);
 
-
+            messageUser("Profile created Successfully")
 
        
         } catch (err: any) {
@@ -124,7 +147,7 @@ const Profile: React.FC<{
 
             // console.log(e.code === AuthErrorCodes.EMAIL_EXISTS);
             // if (e.code === AuthErrorCodes.EMAIL_EXISTS) {
-                dispatch<HomeAction>({ type: 'show-error', errorMessage: err.message});
+          messageUser(err.message || "An error has occurred");
 
             // }
         }
@@ -157,7 +180,7 @@ const Profile: React.FC<{
                                     error={!!errors[entry.name]}
                                     placeholder={entry.placeholder}
                                     multiline={entry.multiline}
-                                    type="text"
+                                    type={entry.type}
                                     sx={{
                                         width: '100%'
                                     }}

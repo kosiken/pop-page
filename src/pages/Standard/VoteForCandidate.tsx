@@ -336,6 +336,16 @@ const VotingCategoryUserPage = () => {
     };
 
     const onNominate = async () => {
+        if(!user) return;
+        if(!currentCategory) return;
+        if(currentCategory.isRestricted) {
+        return   window.alert("You need to contact 08146392214 by call or whatsapp to be a candidate for this position");
+        }
+     
+       if(!(user.phoneNumber)) {
+            window.alert("You need to add a phone number to be eligible for nomination, Click on my ptofile")
+            return;
+        }
         setIsNominating(true);
         const q = query(collection(LionAppDb, tableName3), where("categoryId", "==", id),
             where("userId", "==", user!.id));
@@ -363,7 +373,7 @@ const VotingCategoryUserPage = () => {
             const docRef = await addDoc(collection(LionAppDb, tableName3), entryCreate)
             const entry: NominationEntry = { ...entryCreate, id: docRef.id }
             setNominees([...nominees, entry])
-
+            messageUser("Successfully become a nominee")
 
         }
         else {
@@ -371,7 +381,8 @@ const VotingCategoryUserPage = () => {
         }
 
         setIsNominating(false)
-    }
+    
+ }
 
     if (loading) {
         return <LoadingPageIndicator />
@@ -380,10 +391,15 @@ const VotingCategoryUserPage = () => {
     return (<Box>
         <Header title={"View Category"} />
         <Container>
-            <Spacer />
+            <Spacer space={25} /> 
             <Typography variant='h5' component={'h5'}>
                 {!!currentCategory ? titleCase(currentCategory.name) : "Error"}
             </Typography>
+            <Spacer />
+            <Typography variant="body2" gutterBottom>
+                {currentCategory?.categoryDescription || "Loading"}
+      </Typography>
+
             <Box padding={'10px'}>
 
                 {isNominating ? (<CircularProgress />) : (<Chip label={nominationIsActive ? "Click here to nominate yourself" : "Nomination is closed"}

@@ -38,7 +38,8 @@ const schema = yup
 const Login: React.FC<{
     onLoading: (loading: boolean) => void;
     onSuccess: (email: string, name?: string) => Promise<void>;
-}> = ({ onLoading, onSuccess }) => {
+    loading: boolean;
+}> = ({ onLoading, onSuccess , loading}) => {
     const dispatch = useDispatch();
     const [show, setShow] = React.useState(false)
 
@@ -63,7 +64,7 @@ const Login: React.FC<{
         try {
             let user = await signInWithEmailAndPassword(authentication, data.email, data.password)
             console.log(user);
-            onSuccess(user.user.email || data.email, data.name);
+            onSuccess(user.user.email?.toLocaleLowerCase() || data.email, data.name);
 
         } catch (err: any) {
             let e = err as AuthError;
@@ -137,7 +138,7 @@ const Login: React.FC<{
                 <div style={{
                     textAlign: 'center'
                 }}>
-                    <Button type="submit" variant="contained">Continue</Button>
+                    <Button disabled={loading} type="submit" variant="contained">Continue</Button>
                 </div>
 
 

@@ -31,7 +31,7 @@ import * as yup from "yup";
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import LinearProgress from "@mui/material/LinearProgress";
-import { VotingCategory, Vote, NominationEntry, CandidateEntry, User, IUser } from '../../models';
+import { VotingCategory, IEntry, Vote, NominationEntry, CandidateEntry, User, IUser } from '../../models';
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import { LionAppDb } from '../../firebaseObjects';
@@ -54,19 +54,22 @@ const schema = yup
         email: yup.string().email().required().min(4).max(40),
         profile: yup.string().min(4),
         name: yup.string().min(3).required(),
-        stateCode: yup.string()
+        stateCode: yup.string(),
+        phoneNumber: yup.string().min(10).max(14).required()
 
 
     })
 
-const entries = [
+
+const entries: IEntry[] = [
     {
         name: "name",
         required: true,
         multiline: false,
         placeholder: "Name of the Candidate",
         title: "Name *",
-        defaultValue: ""
+        defaultValue: "",
+        type: "text"
     },
     {
         name: "email",
@@ -74,7 +77,8 @@ const entries = [
         required: true,
         multiline: false,
         placeholder: "Email of the  Category",
-        defaultValue: `ins_${Date.now()}@quickvote.com`
+        defaultValue: `ins_${Date.now()}@quickvote.com`,
+        type: "email"
 
     },
     {
@@ -83,8 +87,8 @@ const entries = [
         required: false,
         multiline: true,
         placeholder: "The profile of the candidate",
-        defaultValue: "No Profile"
-
+        defaultValue: "No Profile",
+        type: "text"
     },
     {
         name: "stateCode",
@@ -92,9 +96,21 @@ const entries = [
         required: false,
         multiline: false,
         placeholder: "The state code of the candidate",
-        defaultValue: "KD/21A/"
+        defaultValue: "KD/21A/",
+        type: "text"
 
     },
+    {
+        name: "phoneNumber",
+        title: "Phone Number",
+        required: true,
+        multiline: false,
+        placeholder: "081234567890",
+        defaultValue: "",
+        type: "tel"
+    }
+
+
 
 ]
 
@@ -261,8 +277,9 @@ const NomineesList: React.FC<{
 const CandidateList: React.FC<{
     candidates: CandidateEntry[];
     onCreate: (success: boolean, reason: string, category: CandidateEntry, index?: number) => void;
-    category?: VotingCategory
-}> = ({ candidates, onCreate, category }) => {
+    category?: VotingCategory,
+    onError: (message: string) => void;
+}> = ({ candidates, onCreate, category, onError }) => {
 
     const [open, setOpen] = React.useState(false);
 
@@ -300,19 +317,23 @@ const CandidateList: React.FC<{
         email: string;
         profile: string;
         stateCode: string;
+        phoneNumber: string;
     }> = async (data) => {
         if (!category) return;
+        console.log(data)
         setLoading(true)
         try {
+          
             let createUser: any = {
                 ...data,
-                name: data.name.toLowerCase(),
+                name: data.name.trim().toLowerCase(),
                 isInstantUser: true,
                 isAdmin: false,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
                 isCandidate: true,
                 votes: 0,
+                phoneNumber: data.phoneNumber.trim()
 
             }
 
@@ -355,8 +376,8 @@ const CandidateList: React.FC<{
 
 
         }
-        catch (err) {
-
+        catch (err: any) {
+            onError(err.message || "An error occurred")
         }
         setLoading(false)
     }
@@ -380,7 +401,7 @@ const CandidateList: React.FC<{
                                     error={!!errors[entry.name]}
                                     placeholder={entry.placeholder}
                                     multiline={entry.multiline}
-                                    type="text"
+                                    type={entry.type}
                                     sx={{
                                         width: '100%'
                                     }}
@@ -388,6 +409,7 @@ const CandidateList: React.FC<{
                                     {...register(entry.name)}
                                     rows={entry.multiline ? 4 : 1}
                                     defaultValue={entry.defaultValue}
+                                   
                                 />
                             </FormControl>
                         ))}
@@ -612,6 +634,7 @@ const VotingCategoryPage = () => {
             <Typography variant='h5' component={'h5'}>
                 {!!currentCategory ? titleCase(currentCategory.name) : "Error"}
             </Typography>
+   
             <Box padding={'10px'}>
                 <FormGroup>
                     <FormControlLabel control={<Checkbox onChange={(e, checked) => {
@@ -644,10 +667,12 @@ const VotingCategoryPage = () => {
         <TabPanel value={value} index={0}>
             <CandidateList onCreate={(s, r, c, i) => {
                 console.log(s, r, c, i);
+                messageUser(r);
                 setCandidates([...candidates, c])
                 if (!!currentCategory) setCurrentCategory({ ...currentCategory, numOfCandidates: currentCategory?.numOfCandidates + 1 || 1 });
             }} candidates={candidates}
                 category={currentCategory}
+                onError={messageUser}
             />
         </TabPanel>
 
