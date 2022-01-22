@@ -182,8 +182,7 @@ const ViewUser = () => {
                 </Typography>}
             
                 <Stack direction="row" spacing={1}>
-                    {nominationEntries.map((c, i) => (<Chip label={titleCase(c.category.name)} key={'nomination-entry' + i} />))}
-
+              
                     {nominationEntries.map((c, i) => (<Chip label={titleCase(c.category.name)} key={'nomination' + i} />))}
                 </Stack>
 

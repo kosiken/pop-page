@@ -162,7 +162,7 @@ const AddCategoryForm: React.FC<{
 
         }
         return (
-            <Box sx={{ minWidth: { sm: 450, xs: 300 } }}>
+            <Box sx={{ width: {sm: '90vw', md: 400}, }}>
                 {loading && <LinearProgress />}
                 <form onSubmit={handleSubmit(createCategory)}>
                     {entries.map((entry, i) => (
