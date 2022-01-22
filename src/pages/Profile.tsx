@@ -250,7 +250,9 @@ const Profile: React.FC<{
             details.updatedAt = Date.now();
             details.createdAt = user.createdAt;
             await setDoc(doc(usersRef, user!.id), details);
-            dispatch<AuthAction>({ type: "login", user: new User(user.getDetails()), token:  user.id, shouldSet: false })
+            let n = new User(user.getDetails());
+            n.id = user.id
+            dispatch<AuthAction>({ type: "login", user: n, token:  user.id, shouldSet: false })
        
             messageUser("Profile updated Successfully")
 
@@ -295,7 +297,7 @@ const Profile: React.FC<{
                 }} />
                 <Centered >
                     <Box sx={{ p: 3, textAlign: 'center' }} >
-                        <ImageView user={user!} />
+                        <ImageView user={user!} imageUrl={objectUrl} />
                         <Spacer />
                         <Button onClick={() => {
                             if (ref.current) {

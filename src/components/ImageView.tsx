@@ -5,8 +5,9 @@ import Avatar from '@mui/material/Avatar';
 import Container  from '@mui/material/Container';
 
 const ImageView: React.FC<{
-    user: User
-}> = ({ user }) => {
+    user: User;
+    imageUrl?: string
+}> = ({ user, imageUrl }) => {
 
     const [open, setOpen] = React.useState(false);
     const handleClose = () => {
@@ -18,7 +19,7 @@ const ImageView: React.FC<{
     };
 
     return (<>
-        <Avatar sx={{ width: 80, height: 80 }} alt={user!.name} src={user!.picUrl} onClick={handleToggle} style={{ display: 'inline-block' }}/>
+        <Avatar sx={{ width: 80, height: 80 }} alt={user!.name} src={imageUrl || user!.picUrl} onClick={handleToggle} style={{ display: 'inline-block' }}/>
         <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={open}
@@ -27,7 +28,7 @@ const ImageView: React.FC<{
 
           <Container>
       
-        <img alt={user.name} src={user.picUrl}  />
+        <img alt={user.name} src={imageUrl  || user.picUrl}  />
         </Container>
       </Backdrop>
   
