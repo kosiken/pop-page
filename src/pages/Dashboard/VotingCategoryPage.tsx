@@ -387,7 +387,7 @@ const CandidateList: React.FC<{
         <Dialog open={open} onClose={handleClose} >
             <DialogTitle>Create Category</DialogTitle>
             <DialogContent>
-                <Box sx={{ minWidth: { sm: 450, xs: 300 } }}>
+                <Box sx={{ width: {sm: '90vw', md: 400}, }}>
                     {loading && <LinearProgress />}
                     <form onSubmit={handleSubmit(createCandidate)}>
                         {entries.map((entry, i) => (
