@@ -81,7 +81,7 @@ const AddCategoryForm: React.FC<{
         const {
             register,
             handleSubmit,
-            formState: { errors },
+            formState: { errors, },
         } = useForm({ resolver: yupResolver(schema) });
 
         const createCategory: SubmitHandler<FieldValues | {
@@ -204,7 +204,7 @@ const AddCategoryForm: React.FC<{
                     <div style={{
                         textAlign: 'center'
                     }}>
-                        <Button type="submit" variant="contained">Continue</Button>
+                        <Button type="submit" variant="contained">Save</Button>
 
 
                     </div>

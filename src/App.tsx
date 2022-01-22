@@ -26,6 +26,7 @@ import Profile from './pages/Profile';
 import VotingCategoryUserPage from './pages/Standard/VoteForCandidate';
 import LogOut from './pages/LogOut';
 import Spacer from './components/Spacer';
+import ViewUser from './pages/ViewUser';
 
 
 const AdminApp = () => {
@@ -36,6 +37,9 @@ const AdminApp = () => {
 
     <Route exact path={'/voting-category/:id'}>
       <VotingCategoryPage />
+    </Route>
+    <Route exact path={'/view-user/:id'}>
+      <ViewUser />
     </Route>
     <Route exact path={'/my-profile'}>
       <Profile />
@@ -54,7 +58,9 @@ const StandardApp = () => {
     <Route exact path={'/'}>
       <VotingHome />
     </Route>
- 
+    <Route exact path={'/view-user/:id'}>
+      <ViewUser />
+    </Route>
     <Route exact path={'/voting-category/:id'}>
       <VotingCategoryUserPage />
     </Route>
@@ -75,6 +81,8 @@ const Main = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+
+
   useEffect(() => {
     const check = async() => {
     let token = window.localStorage.getItem("token");
@@ -85,6 +93,7 @@ const Main = () => {
         if(userDoc.exists()) {
           let toCreate: any  = userDoc.data();
           toCreate.id = token;
+          if(!toCreate.picUrl) toCreate.picUrl = ''
           const theUser = new User(toCreate);
           dispatch<AuthAction>({ type: "login", user: theUser, token: theUser.id, shouldSet: false })
           setAuthenticated(true)

@@ -128,7 +128,7 @@ const Home = () => {
                                 }
 
                             }}
-                                secondary={reduceString(c.categoryShortText || c.categoryDescription, 15)}
+                                secondary={reduceString(c.categoryShortText || c.categoryDescription, 45)}
                             />
                             {(c.numOfNominationEntries > 0)
                                 && <Badge color="primary" badgeContent={c.numOfNominationEntries} />

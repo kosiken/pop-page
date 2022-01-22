@@ -60,6 +60,7 @@ const Auth = () => {
   };
 
   const onSuccess = async(email: string, name?: string) => {
+    setLoading(true);
     let user: User;
     const q = query(collection(LionAppDb, "app-users"), where("email", "==", email));
     const querySnapshot = await getDocs(q);
@@ -70,7 +71,8 @@ const Auth = () => {
         createdAt: Date.now(),
         updatedAt:  Date.now(),
         profile: "",
-        votes: 0, isCandidate: false, isAdmin: false, isInstantUser: false
+        votes: 0, isCandidate: false, isAdmin: false, isInstantUser: false,
+        picUrl: ''
       }
       try {  const docRef = await addDoc(collection(LionAppDb, "app-users"), {
         ...userData
@@ -79,11 +81,12 @@ const Auth = () => {
      
 
       console.log("Document written with ID: ", docRef.id);
-      user = new User({...userData, id: docRef.id})
+      user = new User({...userData, id: docRef.id,    picUrl: ''})
 
     } catch (e: any) {
       console.error("Error adding document: ", e);
       dispatch<HomeAction>({ type: 'show-error', errorMessage: "Couldn't complete sign in"});
+      setLoading(false);
       return;
     }
   
@@ -91,11 +94,13 @@ const Auth = () => {
     else {
       let doc = querySnapshot.docs[0];
       let data: any = {...doc.data(), id: doc.id};
+      if(!data.picUrl) data.picUrl = ''
       user = new User(data);
    
     }
-    dispatch<AuthAction>({ type: "login", user, token: user.id, shouldSet: true })
+    dispatch<AuthAction>({ type: "login", user, token: user.id, shouldSet: true });
     dispatch<HomeAction>({ type: 'show-error', errorMessage: "Signed In"});
+    setLoading(false);
   }
 
   // Color.fromRGBO(0x73, 0x80, 0xf3, 1),

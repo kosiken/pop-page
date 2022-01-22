@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
+import { getStorage } from "firebase/storage";
 
 
 
@@ -20,5 +21,4 @@ const firebaseConfig = {
 export const LionApp = initializeApp(firebaseConfig);
 export const Analytics = getAnalytics(LionApp);
 export const LionAppDb = getFirestore(LionApp);
-
-
+export const LionStorage = getStorage(LionApp);

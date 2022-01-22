@@ -228,14 +228,14 @@ const NomineePanel: React.FC<{
     }
     return (<ListItem >
         <ListItemAvatar>
-            <Avatar />
+            <Avatar alt={nominee.user.name} src={nominee.user.url!} />
         </ListItemAvatar>
         <ListItemText primary={titleCase(nominee.user.name)} />
 
         <AppLink style={{
             marginRight: '10px'
         }}
-            to={"/candidate/" + nominee.userId} doNotUseButton>
+            to={"/view-user/" + nominee.userId} doNotUseButton>
 
             <IconButton style={{ marginRight: '10px' }}>
                 <VisibilityIcon />
@@ -333,7 +333,8 @@ const CandidateList: React.FC<{
                 updatedAt: Date.now(),
                 isCandidate: true,
                 votes: 0,
-                phoneNumber: data.phoneNumber.trim()
+                phoneNumber: data.phoneNumber.trim(),
+                picUrl: User.defaultPic
 
             }
 
@@ -491,7 +492,7 @@ const CandidateList: React.FC<{
                             key={'candidate-' + i}
                         >
                             <ListItemAvatar>
-                                <Avatar />
+                                <Avatar alt={c.candidate.name} src={c.candidate.url!} />
                             </ListItemAvatar>
                             <ListItemText primary={titleCase(c.candidate.name)} secondary={getDate(c.updatedAt)} />
                         </ListItem>

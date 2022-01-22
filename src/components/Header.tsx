@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 
 
 
-const pages = [{name: 'Categories', path: '/'},{name: 'Candidates', path: '/candidates' }];
+const pages = [{name: 'Categories', path: '/'}];
 const settings = [{name:'Home', path: '/'},{name: 'Profile', path: '/my-profile'}, {name: 'Logout', path: '/log-out'}];
 const Header: React.FC<{
     title: string;

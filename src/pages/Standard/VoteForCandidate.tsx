@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import List from '@mui/material/List';
 // import { blue, red } from '@mui/material/colors';
 import Chip from '@mui/material/Chip';
+import FaceIcon from '@mui/icons-material/Face';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -15,7 +16,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import { collection, query, getDocsFromServer as getDocs, getDoc, addDoc, setDoc, doc, where, deleteDoc } from "firebase/firestore";
- 
+
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import CircularProgress from "@mui/material/CircularProgress";
 import { VotingCategory, NominationEntry, CandidateEntry, User } from '../../models';
@@ -80,8 +81,9 @@ function a11yProps(index: number) {
 
 
 const NomineesList: React.FC<{
-    nominees: NominationEntry[]
-}> = ({ nominees }) => {
+    nominees: NominationEntry[];
+    user: User;
+}> = ({ nominees, user }) => {
 
     return (<Box style={{
         position: 'relative'
@@ -90,24 +92,25 @@ const NomineesList: React.FC<{
             {
                 nominees.map((c, i) => {
                     return (
-                        <AppLink key={'nominee-' + i}
-                            to={"/candidate/" + c.userId} doNotUseButton>
 
-                            <ListItem     >
+
+                            <ListItem key={'nominee-' + i} button>
                                 <ListItemAvatar>
-                                    <Avatar />
+                                    <Avatar alt={c.user.name} src={c.user.url!} />
                                 </ListItemAvatar>
                                 <ListItemText primary={titleCase(c.user.name)} />
 
-
+                                {(user.id === c.userId) && <Chip label="You" icon={<FaceIcon />} />}
+                           
+                           <AppLink to={(user.id === c.userId) ? "/my-profile" : "/view-user/" + c.userId} doNotUseButton>
                                 <IconButton style={{ marginRight: '10px' }}>
                                     <VisibilityIcon />
                                 </IconButton>
 
-
+                                </AppLink>
 
                             </ListItem>
-                        </AppLink>
+                      
                     )
                 })
             }
@@ -136,11 +139,11 @@ const VotingPanel: React.FC<{
 
             const date = Date.now();
 
-            if(!snapshot.empty) {
-                if(!window.confirm("You already voted before, Do you want to rescind previous vote and vote again"))
-              {  onLoading(false);
-            return;
-            }
+            if (!snapshot.empty) {
+                if (!window.confirm("You already voted before, Do you want to rescind previous vote and vote again")) {
+                    onLoading(false);
+                    return;
+                }
             }
             if (snapshot.empty) {
                 const entryCreate: any = {
@@ -164,7 +167,7 @@ const VotingPanel: React.FC<{
 
             }
             else {
-              
+
                 console.log("here")
                 await deleteDoc(doc(LionAppDb, tableName4, snapshot.docs[0].id));
                 add = -1;
@@ -198,17 +201,20 @@ const VotingPanel: React.FC<{
     return (
         <ListItem
 
-
+            button
         >
             <ListItemAvatar>
-                <Avatar />
+                <Avatar alt={c.candidate.name} src={c.candidate.url!} />
             </ListItemAvatar>
             <ListItemText primary={titleCase(c.candidate.name)} secondary={(c.votes + votes) + " vote(s)"} />
 
+            {(user.id === c.candidateId) && <Chip label="You" icon={<FaceIcon />} />}
+                             
+            <AppLink to={(user.id === c.candidateId) ? "/my-profile" : "/view-user/" +  c.candidateId}
 
-            <AppLink to={"/candidate/" + c.candidateId} doNotUseButton> <IconButton disabled={!category.votingIsActive} style={{ marginRight: '10px' }}>
-                <VisibilityIcon />
-            </IconButton>
+                doNotUseButton> <IconButton disabled={!category.votingIsActive} style={{ marginRight: '10px' }}>
+                    <VisibilityIcon />
+                </IconButton>
             </AppLink>
 
             <IconButton disabled={!category.votingIsActive || loading} onClick={onVote}>
@@ -336,13 +342,13 @@ const VotingCategoryUserPage = () => {
     };
 
     const onNominate = async () => {
-        if(!user) return;
-        if(!currentCategory) return;
-        if(currentCategory.isRestricted) {
-        return   window.alert("You need to contact 08146392214 by call or whatsapp to be a candidate for this position");
+        if (!user) return;
+        if (!currentCategory) return;
+        if (currentCategory.isRestricted) {
+            return window.alert("You need to contact 08146392214 by call or whatsapp to be a candidate for this position");
         }
-     
-       if(!(user.phoneNumber)) {
+
+        if (!(user.phoneNumber)) {
             window.alert("You need to add a phone number to be eligible for nomination, Click on my ptofile")
             return;
         }
@@ -359,7 +365,8 @@ const VotingCategoryUserPage = () => {
                 },
                 user: {
                     id: user!.id,
-                    name: user!.name
+                    name: user!.name,
+                    url: user!.picUrl
                 },
                 isApproved: false,
                 userId: user!.id,
@@ -381,8 +388,8 @@ const VotingCategoryUserPage = () => {
         }
 
         setIsNominating(false)
-    
- }
+
+    }
 
     if (loading) {
         return <LoadingPageIndicator />
@@ -391,14 +398,14 @@ const VotingCategoryUserPage = () => {
     return (<Box>
         <Header title={"View Category"} />
         <Container>
-            <Spacer space={25} /> 
+            <Spacer space={25} />
             <Typography variant='h5' component={'h5'}>
                 {!!currentCategory ? titleCase(currentCategory.name) : "Error"}
             </Typography>
             <Spacer />
             <Typography variant="body2" gutterBottom>
                 {currentCategory?.categoryDescription || "Loading"}
-      </Typography>
+            </Typography>
 
             <Box padding={'10px'}>
 
@@ -435,7 +442,7 @@ const VotingCategoryUserPage = () => {
 
 
             <TabPanel value={value} index={1}>
-                <NomineesList nominees={nominees} />
+                <NomineesList nominees={nominees} user={user!} />
             </TabPanel>
         </Container>
 
