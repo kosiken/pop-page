@@ -123,15 +123,22 @@ const VotingPanel: React.FC<{
     user: User;
     category: VotingCategory;
     onLoading: (loading: boolean) => void;
+    
     loading: boolean;
-}> = ({ candidate: c, user, category, loading, onLoading }) => {
-    const [votes, setVotes] = useState(0);
+    onVotePerson: (v: string) => void;
+}> = ({ candidate: c, user, category, loading, onLoading, onVotePerson }) => {
+    
     const dispatch = useDispatch();
     const onVote = async () => {
+  
         if (loading) return;
         onLoading(true)
         let add = 1;
         try {
+            if(!window.confirm(`Voting for ${titleCase(c.candidate.name)}`)) {
+                onLoading(false);
+                return;
+            }
             const q = query(collection(LionAppDb, tableName4), where("categoryId", "==", category.id),
                 where("voterId", "==", user!.id));
 
@@ -140,11 +147,12 @@ const VotingPanel: React.FC<{
             const date = Date.now();
 
             if (!snapshot.empty) {
-                if (!window.confirm("You already voted before, Do you want to rescind previous vote and vote again")) {
+       window.confirm("You already voted before, Cannot vote again, Contact 08146392214 to vote again")
                     onLoading(false);
                     return;
-                }
+                  
             }
+          
             if (snapshot.empty) {
                 const entryCreate: any = {
                     category: {
@@ -182,8 +190,8 @@ const VotingPanel: React.FC<{
 
 
 
-            setVotes(votes + add);
             onLoading(false);
+            onVotePerson(c.id)
 
 
 
@@ -206,7 +214,7 @@ const VotingPanel: React.FC<{
             <ListItemAvatar>
                 <Avatar alt={c.candidate.name} src={c.candidate.url!} />
             </ListItemAvatar>
-            <ListItemText primary={titleCase(c.candidate.name)} secondary={(c.votes + votes) + " vote(s)"} />
+            <ListItemText primary={titleCase(c.candidate.name)} secondary={(c.votes) + " vote(s)"} />
 
             {(user.id === c.candidateId) && <Chip label="You" icon={<FaceIcon />} />}
                              
@@ -229,8 +237,9 @@ const CandidateList: React.FC<{
     candidates: CandidateEntry[];
     user: User;
 
-    category: VotingCategory
-}> = ({ candidates, category, user }) => {
+    category: VotingCategory;
+    onVote: (v: string) => void;
+}> = ({ candidates, category, user, onVote }) => {
     const [loading, setLoading] = useState(false);
 
 
@@ -241,7 +250,7 @@ const CandidateList: React.FC<{
 
         <List>
             {
-                candidates.map((c, i) => <VotingPanel key={'candidate-' + i} candidate={c} user={user} category={category} loading={loading} onLoading={setLoading} />)
+                candidates.map((c, i) => <VotingPanel key={'candidate-' + i} onVotePerson={onVote} candidate={c} user={user} category={category} loading={loading} onLoading={setLoading} />)
             }
         </List>
 
@@ -437,6 +446,14 @@ const VotingCategoryUserPage = () => {
                 <CandidateList candidates={candidates}
                     user={user!}
                     category={currentCategory!}
+                    onVote={(id) => {
+                        let candidates2 = [...candidates]
+                        let index = candidates2.findIndex(c => c.id === id);
+                        if(index > -1) {
+                            candidates2[index].votes += 1;
+                        }
+                        setCandidates(candidates2);
+                    }}
                 />
             </TabPanel>
 

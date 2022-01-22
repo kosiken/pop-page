@@ -437,7 +437,9 @@ const CandidateList: React.FC<{
         <Dialog open={!!user} onClose={handleClose2}>
 
             <DialogTitle>{!!user ? (titleCase(user.candidate.name)) : "Error"}</DialogTitle>
-            <Box sx={{ minWidth: { sm: 450, xs: 300 } }}>
+            <DialogContent>
+            <Box  sx={{ width: {sm: '90vw', md: 400}, }} >
+                
                 <List sx={{ pt: 0 }}>
                     <AppLink to={"/view-user/" + candidateId} doNotUseButton>
                         <ListItem>
@@ -471,6 +473,7 @@ const CandidateList: React.FC<{
 
                 </List>
             </Box>
+            </DialogContent>
 
             <Spacer />
 
