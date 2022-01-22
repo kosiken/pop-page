@@ -27,7 +27,33 @@ import VotingCategoryUserPage from './pages/Standard/VoteForCandidate';
 import LogOut from './pages/LogOut';
 import Spacer from './components/Spacer';
 import ViewUser from './pages/ViewUser';
+import { Helmet } from 'react-helmet';
 
+
+const Intro = `
+KADUNA STATE YOUTH CORPS 
+2021 BATCH A STREAM 1 AWARD&DINNER NIGHT 
+
+AWARDS CATEGORIES 
+1. Most Handsome 
+2. Most Beautiful 
+3. Best Artist (Music)
+4. Best Comedian 
+5. Most Expensive (Male & Female)
+6. Most Social (Male & Female)
+7. Most Popular (Male & Female)
+8. Most influential (Male & Female)
+9. Best Couple of the year 
+10. Entrepreneur of the year 
+11. Athlete of the year 
+12. Model of the year (Male & Female)
+13. Most Understanding Corper (Male & Female)
+14. Most Hardworking CDS Excos (Male & Female)
+15. Most Active CDS Members (Male & Female)
+16. Most Supportive Corper (Male & Female)
+17. Most active Corper (Male & Female)
+18. Most Humble Corper (Male & Female)
+`;
 
 const AdminApp = () => {
   return (<Switch>
@@ -150,6 +176,16 @@ function App() {
   }, [])
   return (
     <div className="App" >
+      <Helmet>
+      <meta
+  property="description"
+  content={Intro}
+/>
+<meta
+  property="og:description"
+ content={Intro}
+/>
+      </Helmet>
       <Provider store={store}>
 
         <Main />
